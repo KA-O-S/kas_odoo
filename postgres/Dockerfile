@@ -1,4 +1,4 @@
-#FROM registry.gitlab.com/hav-media/odoo-images/postgres:14.1
+FROM postgres:15
 
 # Create Live and Stage Users
 COPY ./init/init.sql /docker-entrypoint-initdb.d/
