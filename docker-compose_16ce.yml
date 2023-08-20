@@ -11,11 +11,11 @@ services:
     build: ./nginx
     depends_on:
       # Depends on Live
-      - odoo-16.0-live
+      - odoo-live
       # Depends on Pre Prodction
       #- odoo-16.0-pre-prod
       # Depends on Stage
-      - odoo-16.0-stage
+      - odoo-stage
       # Depends on MailCatcher
       #- smtp
     ports:
@@ -82,7 +82,7 @@ services:
       # Depends on Database
       - db
       # Depends on MailCatcher
-      - smtp
+      #- smtp
     volumes:
       # Odoo Configuration
       - ./odoo/stage/config:/etc/odoo:ro
