@@ -1,4 +1,4 @@
-FROM postgres:15
+#FROM postgres:15
 
 # Create Live and Stage Users
 COPY ./init/init.sql /docker-entrypoint-initdb.d/
