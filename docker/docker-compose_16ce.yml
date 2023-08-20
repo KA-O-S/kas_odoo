@@ -1,0 +1,148 @@
+version: "3.8"
+services:
+
+  # Nginx Proxy Service
+  nginx:
+    # Container Name
+    container_name: nginx
+    # Image Name
+    image: nginx:stable
+    # Dockerfile for Nginx, add Customizations here
+    build: ./nginx
+    depends_on:
+      # Depends on Live
+      - odoo-16.0-live
+      # Depends on Pre Prodction
+      #- odoo-16.0-pre-prod
+      # Depends on Stage
+      - odoo-16.0-stage
+      # Depends on MailCatcher
+      #- smtp
+    ports:
+      # Host:Container, HTTP Port
+      - 80:80/tcp
+      # Host:Container, HTTPS Port (Live 15.0)
+      - 443:443/tcp
+      # Host:Container, HTTPS Port (Stage 15.0)
+      - 9069:9069/tcp
+      # Host:Container, HTTPS Port (Pre Prod 15.0)
+      #- 9079:9079/tcp
+    volumes:
+      # Core Configuration
+      - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Proxy Configuration
+      - ./nginx/config:/etc/nginx/conf.d:ro
+      # Cache
+      - ./nginx/volumes/cache:/var/lib/nginx/cache
+      # LetsEncrypt
+      - ./nginx/volumes/letsencrypt:/etc/letsencrypt
+      # WebRoot
+      - ./nginx/volumes/www:/var/www/certbot
+    # Log to Hosts Syslog
+    logging:
+      driver: syslog
+    # Always restart the container
+    restart: always
+
+
+  # Odoo Live Service
+  odoo-live:
+    # Container Name
+    container_name: odoo-live
+    # Image Name
+    image: odoo:16.0
+    # Dockerfile for Odoo, add Customizations here
+    build: ./odoo/live/
+    depends_on:
+      # Depends on Database
+      - db
+    volumes:
+      # Odoo Configuration
+      - ./odoo/live/config:/etc/odoo:ro
+      # Odoo Addons
+      - ./odoo/live/volumes/addons:/home/odoo/addons
+      # Filestore, Session etc.
+      - ./odoo/live/volumes/data:/var/lib/odoo
+    # Log to Hosts Syslog
+    logging:
+      driver: syslog
+    # Always restart the container
+    restart: always
+
+
+  # Odoo Stage Service
+  odoo-stage:
+    # Container Name
+    container_name: odoo-stage
+    # Image Name
+    image: odoo:16.0
+    # Dockerfile for Odoo, add Customizations here
+    build: ./odoo/stage/
+    depends_on:
+      # Depends on Database
+      - db
+      # Depends on MailCatcher
+      - smtp
+    volumes:
+      # Odoo Configuration
+      - ./odoo/stage/config:/etc/odoo:ro
+      # Odoo Addons
+      - ./odoo/stage/volumes/addons:/home/odoo/addons
+      # Filestore, Session etc.
+      - ./odoo/stage/volumes/data:/var/lib/odoo
+    # Log to Hosts Syslog
+    logging:
+      driver: syslog
+    # Always restart the container
+    restart: always
+
+
+  
+
+  # Database Service
+  db:
+    # Container Name
+    container_name: db
+    # Pull from offical image
+    image: postgres:15.0
+    # Dockerfile for Postgres, add Customizations here
+    build: ./postgres
+    volumes:
+      # Backup Volume
+      - ./postgres/volumes/backups:/home/backups
+      # Database Volume
+      - ./postgres/volumes/data:/var/lib/postgresql/data
+    # Log to Hosts Syslog
+    logging:
+      driver: syslog
+    # Always restart the container
+    restart: always
+
+
+  # Certbot / LetsEncrypt
+  certbot:
+    # Container Name
+    container_name: certbot
+    # Pull from offical image
+    image: certbot/certbot
+    volumes:
+      # LetsEncrypt
+      - ./nginx/volumes/letsencrypt:/etc/letsencrypt
+      # WebRoot
+      - ./nginx/volumes/www:/var/www/certbot
+    # Log to Hosts Syslog
+    logging:
+      driver: syslog
+
+
+  # MailCatcher
+ # smtp:
+    # Container Name
+ #   container_name: smtp
+    # Image
+#    image: tophfr/mailcatcher
+    # Ports
+#    ports:
+#      - "1080:80"
+    # Always restart the container
+#    restart: always
