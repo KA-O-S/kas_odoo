@@ -11,9 +11,7 @@ services:
     build: ./nginx
     depends_on:
       # Depends on Live
-      - odoo-live
-      # Depends on Pre Prodction
-      #- odoo-16.0-pre-prod
+      - odoo-livecat 
       # Depends on Stage
       - odoo-stage
       # Depends on MailCatcher
@@ -21,7 +19,7 @@ services:
     ports:
       # Host:Container, HTTP Port
       - 80:80/tcp
-      # Host:Container, HTTPS Port (Live 15.0)
+      # Host:Container, HTTPS Port (Live)
       - 443:443/tcp
       # Host:Container, HTTPS Port (Stage 15.0)
       - 9069:9069/tcp
