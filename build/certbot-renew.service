@@ -1,0 +1,7 @@
+[Unit]
+Description=Certbot Renewal Service
+
+[Service]
+ExecStart=/usr/local/bin/docker-compose -f /home/odoo-docker/docker-compose.yml run --rm --entrypoint "certbot renew" certbot
+WorkingDirectory=/home/odoo-docker
+
