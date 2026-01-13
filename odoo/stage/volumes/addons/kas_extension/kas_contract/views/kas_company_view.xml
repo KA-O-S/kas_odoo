@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_company_form_kas_contract" model="ir.ui.view">
+            <field name="name">res.company.form.kas.contract</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='color']" position="after">
+
+                    <field name="contract_logo" widget="image" class="oe_avatar"/>
+                    <field name="contract_footer" widget="image" class="oe_avatar"/>
+                    <field name="timesheet_logo" widget="image" class="oe_avatar"/>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

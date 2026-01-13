@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="hr_timesheet_line_tree_kas" model="ir.ui.view">
+            <field name="name">account.analytic.line.tree.hr_timesheet.kas</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_tree"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='project_id']" position="before">
+                    <field name="partner_id"/>
+                    <field name="contact_person" domain="[('parent_id','=', partner_id)]" widget="many2many_tags"/>
+                    <field name="contact_partner_allg" widget="many2many_tags"/>
+                </xpath>
+                <xpath expr="//field[@name='project_id']" position="attributes">
+                    <attribute name="domain">[('partner_id', '=', partner_id)]</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

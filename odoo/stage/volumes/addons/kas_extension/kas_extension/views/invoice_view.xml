@@ -1,0 +1,44 @@
+<odoo>
+
+      <record id="view_account_move_kas" model="ir.ui.view">
+      <field name="name">account.move.form.kas</field>
+      <field name="model">account.move</field>
+      <field name="inherit_id" ref="account.view_move_form"/>
+      <field name="arch" type="xml">
+
+          <xpath expr="//div[@class='oe_title']/h1/field[@name='name']" position="attributes">
+            <t t-if="move_type in ['out_invoice', 'in_invoice']">
+                <attribute name="invisible">True</attribute>
+            </t>
+          </xpath>
+
+          <!--<xpath expr="//div[@class='oe_title']/h1/span" position="attributes">
+            <t t-if="move_type in ['out_invoice', 'in_invoice']">
+                <attribute name="invisible">True</attribute>
+            </t>
+        </xpath>-->
+        <xpath expr="//div[@class='oe_title']" position="inside">
+                <h1><field name="invoice_number"/></h1>
+        </xpath>
+
+        <xpath expr="//group[@id='header_right_group']//field[@name='invoice_date']" position="after">
+            <field name="period_performance"/>
+            <field name="with_timesheet" widget="boolean_toggle"/>
+        </xpath>
+      </field>
+      </record>
+
+    <record id="view_account_invoice_tree_kas" model="ir.ui.view">
+      <field name="name">account.move.tree.kas</field>
+      <field name="model">account.move</field>
+      <field name="inherit_id" ref="account.view_invoice_tree"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='name']" position="attributes">
+            <attribute name="invisible">True</attribute>
+        </xpath>
+        <xpath expr="//field[@name='name']" position="replace">
+            <field name="invoice_number" string="Re.Nr."/>
+        </xpath>
+      </field>
+    </record>
+</odoo>

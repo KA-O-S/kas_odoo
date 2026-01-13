@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+     <record id="kas_timesheet_report_account_move" model="ir.actions.report">
+        <field name="name">Zeiterfassung_Kas</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_extension.report_timesheet_account_move_kas_ex</field>
+        <field name="report_file">kas_extension.report_timesheet_account_move_kas_ex</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="kas_timesheet_report_sale_order" model="ir.actions.report">
+        <field name="name">Zeiterfassung_Kas_VK</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_extension.timesheet_report_sale_order_kas</field>
+        <!--<field name="report_file">kas_extension.report_timesheet_account_move_kas_ex</field>-->
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="kas_timesheet_report_project" model="ir.actions.report">
+        <field name="name">Zeiterfassung_Kas</field>
+        <field name="model">project.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_extension.timesheet_report_project_kas</field>
+        <field name="binding_model_id" ref="project.model_project_project"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="kas_invoice_report_account_move" model="ir.actions.report">
+        <field name="name">Rechnung_Kas</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_extension.report_invoice_account_move_kas</field>
+        <field name="report_file">kas_extension.report_invoice_account_move_kas</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+    
+
+</odoo>

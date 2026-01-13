@@ -1,0 +1,329 @@
+# Redirect all HTTP Traffic to HTTPS
+# NEU: IP-basierter HTTPS-Default-VHost ? odoo-live
+server {
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name _;
+
+    # SSL wie in deinen bestehenden Blöcken
+    ssl_certificate /etc/letsencrypt/live/kas-odoo.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kas-odoo.de/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Optional: Basic Auth zum Absichern
+    # auth_basic "Restricted";
+    # auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+
+    proxy_read_timeout 1800;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    send_timeout 1800;
+
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Host $http_host;
+
+    # Odoo live
+    location / {
+        proxy_redirect off;
+        proxy_pass http://odoo_live_web;   # oder alternativ: http://odoo-live:8069
+    }
+
+    location /longpolling {
+        proxy_pass http://odoo_live_chat;  # oder alternativ: http://odoo-live:8072
+    }
+
+    # ACME (unschädlich im Test)
+    location /.well-known/acme-challenge/ {
+        auth_basic off;
+        root /var/www/certbot;
+    }
+    add_header X-Vhost live-ip-default always;
+    # Optional: statics / DB-Manager wie in deinem Live-Block
+    location ~* /web/static/ {
+        proxy_cache backcache;
+        proxy_cache_bypass $http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+        proxy_pass http://odoo_live_web;
+    }
+
+    location /web/database/ {
+        client_max_body_size 150m;
+        proxy_pass http://odoo_live_web;
+    }
+}
+
+# … hier bleibt dein bestehender Inhalt (HTTP?HTTPS Redirect, www?non-www, Live 443 für Domains, Stage 9069, …)
+server {
+
+    # ports
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # For all Domains
+    server_name _;
+
+    server_tokens off;
+
+    # acme challenge
+    location /.well-known/acme-challenge/ {
+
+      root /var/www/certbot;
+
+    }
+
+    # Redirect to HTTPS
+    return 301 https://$host$request_uri;
+
+}
+
+# Redirect all www to non-www
+server {
+
+    # ports
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    # For all Domains
+    server_name ~^www\.(?<domain>.+\.kas-odoo)\.de$;
+
+    server_tokens off;
+
+    # SSL
+    ssl_certificate /etc/letsencrypt/live/kas-odoo.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kas-odoo.de/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # acme challenge
+    location /.well-known/acme-challenge/ {
+
+      root /var/www/certbot;
+
+    }
+
+    # redirect to non-www https
+    return  301 https://$domain$request_uri;
+
+}
+
+# Live
+server {
+
+    # Ports
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    # Server Name / Domains
+    server_name kas-odoo.de *.kas-odoo.de;
+
+    # Security Enhancements / Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Frame-Options SAMEORIGIN;
+    server_tokens off;
+
+    # Upload Limit
+    client_max_body_size 50m;
+
+    # Timeouts
+    proxy_read_timeout 1800;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    send_timeout 1800;
+
+    # SSL
+    ssl_certificate /etc/letsencrypt/live/kas-odoo.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kas-odoo.de/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Proxy Headers
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Host $host;
+
+    # Increase proxy buffer to reduce load on backend
+    proxy_buffering on;
+    proxy_buffers 16 64k;
+    proxy_buffer_size 128k;
+
+    # Compression
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_vary on;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+
+    # Odoo
+    location / {
+
+        proxy_redirect off;
+
+        proxy_pass http://odoo_live_web;
+
+    }
+
+    # Chat / Longpolling
+    location /longpolling {
+
+        proxy_pass http://odoo_live_chat;
+
+    }
+
+    # Cache
+    location ~* /web/static/ {
+
+        proxy_cache backcache;
+        proxy_cache_bypass $http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+
+        proxy_pass http://odoo_live_web;
+
+    }
+
+    # Acme Challange (needed for renewal of certificates)
+    location /.well-known/acme-challenge/ {
+
+        auth_basic off;
+
+        root /var/www/certbot;
+
+    }
+
+    # Database Manager
+    location /web/database/ {
+
+        client_max_body_size 150m;
+
+        proxy_pass http://odoo_live_web;
+
+    }
+
+    # Do not show installed modules
+    location ~* /website/info { return 301 /; }
+
+    # Do not show benchmarks
+    location ~* /web/benchmarks { return 301 /; }
+
+}
+
+
+# Stage
+server {
+
+    # Ports
+    listen 9069 ssl http2;
+    listen [::]:9069 ssl http2;
+
+    # Server Name / Domains
+    server_name kas-odoo.de *.kas-odoo.de;
+
+    # Authentication
+    auth_basic "Restricted";
+    auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+
+    # Redirect every HTTP to HTTPS
+    error_page 497 https://$host:$server_port$request_uri;
+
+    # Security Enhancements / Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Frame-Options SAMEORIGIN;
+    server_tokens off;
+
+    # Upload Limit
+    client_max_body_size 50m;
+
+    # Timeouts
+    proxy_read_timeout 1800;
+    proxy_connect_timeout 1800;
+    proxy_send_timeout 1800;
+    send_timeout 1800;
+
+    # SSL
+    ssl_certificate /etc/letsencrypt/live/kas-odoo.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kas-odoo.de/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Proxy Headers
+    proxy_set_header X-Forwarded-Host $host:$server_port;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Host $host:$server_port;
+
+    # Increase proxy buffer to reduce load on backend
+    proxy_buffering on;
+    proxy_buffers 16 64k;
+    proxy_buffer_size 128k;
+
+    # Compression
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_vary on;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+
+    # Odoo
+    location / {
+
+        proxy_redirect off;
+
+        proxy_pass http://odoo_stage_web;
+
+    }
+
+    # Chat / Longpolling
+    location /longpolling {
+
+        proxy_pass http://odoo_stage_chat;
+
+    }
+
+    # Cache
+    location ~* /web/static/ {
+
+        proxy_cache backcache;
+        proxy_cache_bypass $http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+
+        proxy_pass http://odoo_stage_web;
+
+    }
+
+    # Disable Auth for XMLRPC
+    location /xmlrpc/ {
+
+        auth_basic off;
+
+        proxy_pass http://odoo_stage_web;
+
+    }
+
+    # Database Manager
+    location /web/database/ {
+
+        client_max_body_size 150m;
+
+        proxy_pass http://odoo_stage_web;
+
+    }
+
+    # Do not show installed modules
+    location ~* /website/info { return 301 /; }
+
+    # Do not show benchmarks
+    location ~* /web/benchmarks { return 301 /; }
+
+}

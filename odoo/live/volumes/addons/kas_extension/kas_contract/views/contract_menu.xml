@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+     <menuitem id="contract_menu_root"
+        name="Contracts">
+
+          <menuitem id="contract_menu"
+               action="contract_components_action"
+               name="Contracts"
+               sequence="30"
+
+          />
+     </menuitem>
+
+</odoo>

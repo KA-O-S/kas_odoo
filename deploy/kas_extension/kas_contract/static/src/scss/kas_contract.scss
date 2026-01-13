@@ -1,0 +1,42 @@
+.section-box {
+    /*border: 1px solid #000;  */
+    background-color: #f8f8f8;
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.section-box h4 {
+    margin: 0;
+    padding: 5px;
+    background-color: #e8e8e8;
+    /*border-bottom: 1px solid #000; */
+}
+
+.section-box_inline {
+    /*border: 1px solid #000;  */
+    background-color: #00FFFFFF;
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.section-box_inline h6 {
+    margin: 0;
+    padding: 5px;
+    background-color: #e8e8e8;
+    /*border-bottom: 1px solid #000; */
+}
+.checkbox-square {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            border: 1px solid #000;
+            /* vertical-align: middle;  */
+            /*margin: auto;  */
+}
+.kas-checkbox {
+            text-align: center;
+            vertical-align: middle;
+            padding: 8px;
+}

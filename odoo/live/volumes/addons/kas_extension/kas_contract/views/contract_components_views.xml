@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="contract_components_tree_view" model="ir.ui.view">
+            <field name="name">contract.components.tree.view</field>
+            <field name="model">contract.components</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="title"/>
+                    <field name="name"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="active" string="Active"/>
+                </tree>
+            </field>
+    </record>
+
+    <record id="contract_components_form_view" model="ir.ui.view">
+            <field name="name">contract.components.form.view</field>
+            <field name="model">contract.components</field>
+            <field name="arch" type="xml">
+                <form string="Component" >
+                    <group name="contract_details">
+                    <field name="title"/>
+                    <field name="name"/>
+                    <field name="text_block" string="Block" widget="html" options="{'codeview': true, 'dynamic_placeholder': true}" />
+                    <field name="company_id" string="Company" groups="base.group_multi_company"/>
+                    <field name="model_id" invisible="1"/>
+                    <field name="order_inline_text"/>
+                    <field name="position"/>
+                    <field name="active" string="Active" />
+                    <field name="sequence" string="Sequence" />
+                    </group>
+                </form>
+            </field>
+    </record>
+
+    <record id="contract_components_search_view" model="ir.ui.view">
+    <field name="name">contract.components.search.view</field>
+    <field name="model">contract.components</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="name"/>
+            <field name="company_id"/>
+                <group expand="1" string="Company">
+                    <filter name="company_1" string="KAS Beratung" domain="[('company_id', '=', 1)]"/>
+                    <filter name="company_2" string="KAS Restrukturierung" domain="[('company_id', '=', 2)]"/>
+                    <filter string="Pre-Block" name="position" domain="[('position', '=', 'pre')]"/>
+                    <filter string="Sub-Block" name="position" domain="[('position', '=', 'sub')]"/>
+                    <filter string="Inline" name="order_inline_text" domain="[('order_inline_text', '=', True)]"/>
+                    <filter string="Inaktiv" name="active" domain="[('active', '=', False)]"/>
+                </group>
+            <group expand="1" string="Group By">
+                <filter name="group_by_company" string="Company" context="{'group_by':'company_id'}"/>
+            </group>
+        </search>
+    </field>
+    </record>
+
+
+    <record id="contract_components_action" model="ir.actions.act_window">
+            <field name="name">Contract</field>
+            <field name="res_model">contract.components</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="kas_contract.contract_components_search_view"/>
+    </record>
+
+</odoo>

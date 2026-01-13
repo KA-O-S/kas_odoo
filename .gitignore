@@ -1,0 +1,34 @@
+# Python Cache und Logs
+__pycache__/
+*.pyc
+*.log
+
+# Sensible Umgebungs-Variablen (falls vorhanden)
+.env
+
+# --- Live-Umgebung Ausschlüsse ---
+# Live-Daten-Volumes
+odoo/live/volumes/data/
+
+# Externe Module im Live-Verzeichnis (falls diese separat verwaltet werden)
+# odoo/live/volumes/addons/cakru/
+# ooo/live/volumes/addons/oca/
+
+# --- Stage-Umgebung Ausschlüsse ---
+# Stage-Daten-Volumes
+odoo/stage/volumes/data/
+
+# Externe Module im Stage-Verzeichnis (falls diese separat verwaltet werden)
+# odoo/stage/volumes/addons/cakru/
+# odoo/stage/volumes/addons/oca/
+
+# --- Globale Ausschlüsse ---
+# PostgreSQL Daten
+postgres/volumes/data/
+
+# LetsEncrypt Zertifikate und Logs
+nginx/volumes/letsencrypt/
+certbot/
+
+# Backup-Dateien
+*.tar.gz

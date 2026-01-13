@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_contract_tl" model="ir.actions.report">
+        <field name="name">Teileistungsvertrag</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_contract.report_contract_tl</field>
+        <field name="report_file">kas_contract.report_contract_tl</field>
+        <field name="binding_model_id" ref="model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_contract_ra" model="ir.actions.report">
+        <field name="name">Rahmenvertrag</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_contract.report_contract_ra</field>
+        <field name="report_file">kas_contract.report_contract_ra</field>
+        <field name="binding_model_id" ref="model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_contract_evl" model="ir.actions.report">
+        <field name="name">Erfolgasabhängige Leistung</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kas_contract.report_contract_evl</field>
+        <field name="report_file">kas_contract.report_contract_evl</field>
+        <field name="binding_model_id" ref="model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

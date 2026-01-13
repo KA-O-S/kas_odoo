@@ -1,5 +1,5 @@
 version: "3.8"
-services:
+services: 
 
   # Nginx Proxy Service
   nginx:
@@ -8,7 +8,7 @@ services:
     # Image Name
     image: nginx:stable
     # Dockerfile for Nginx, add Customizations here
-    build: ./nginx
+    #build: ./nginx
     depends_on:
       # Depends on Live
       - odoo-live
@@ -44,13 +44,26 @@ services:
 
 
   # Odoo Live Service
-  odoo-live:
+  odoo-live: 
     # Container Name
     container_name: odoo-live
     # Image Name
-    image: odoo:17.0
+    image: kas-odoo-live:17.0
     # Dockerfile for Odoo, add Customizations here
-    build: ./odoo/live/
+    build:  ./odoo/live/
+    # === BEGINN DER FINALEN LOESUNG ===
+    ulimits:
+      as:  # 'as' steht fuer Address Space, das 'ulimit -v'
+        soft: -1 # -1 bedeutet unbegrenzt
+        hard: -1 # -1 bedeutet unbegrenzt
+    # === ENDE DER FINALEN LOESUNG ===
+    # user: "root"
+    shm_size: '2gb'
+    # cap_add:
+    #   - SYS_ADMIN
+    # security_opt:
+    #   - seccomp:unconfined
+    #   - apparmor:unconfined
     depends_on:
       # Depends on Database
       - db
@@ -61,6 +74,10 @@ services:
       - ./odoo/live/volumes/addons:/home/odoo/addons
       # Filestore, Session etc.
       - ./odoo/live/volumes/data:/var/lib/odoo
+    environment:
+      # Chrome PDF Configuration
+      - CHROME_PDF_ENABLED=True
+      - REPORT_URL=https://127.0.0.1:443
     # Log to Hosts Syslog
     logging:
       driver: syslog
@@ -69,13 +86,13 @@ services:
 
 
   # Odoo Stage Service
-  odoo-stage:
+  odoo-stage: 
     # Container Name
     container_name: odoo-stage
     # Image Name
-    image: odoo:17.0
+    image: kas-odoo-stage:17.0
     # Dockerfile for Odoo, add Customizations here
-    build: ./odoo/stage/
+    build:  ./odoo/stage/
     depends_on:
       # Depends on Database
       - db
@@ -88,21 +105,22 @@ services:
       - ./odoo/stage/volumes/addons:/home/odoo/addons
       # Filestore, Session etc.
       - ./odoo/stage/volumes/data:/var/lib/odoo
+    environment:
+      # Chrome PDF Configuration (optional for stage)
+      - CHROME_PDF_ENABLED=True
+      - REPORT_URL=https://127.0.0.1:9069
     # Log to Hosts Syslog
-    logging:
+    logging: 
       driver: syslog
     # Always restart the container
     restart: always
 
-
-  
-
   # Database Service
-  db:
+  db: 
     # Container Name
     container_name: db
     # Pull from offical image
-    image: postgres:15.0
+    image:  postgres:15.0
     # Dockerfile for Postgres, add Customizations here
     build: ./postgres
     volumes:
@@ -111,7 +129,7 @@ services:
       # Database Volume
       - ./postgres/volumes/data:/var/lib/postgresql/data
     # Log to Hosts Syslog
-    logging:
+    logging: 
       driver: syslog
     # Always restart the container
     restart: always
@@ -132,6 +150,18 @@ services:
     # Log to Hosts Syslog
     logging:
       driver: syslog
-
-
- 
+  # Minimaler Test-Dienst, um die ulimit-Anwendung zu ueberpruefen
+  ulimit-tester:
+    container_name: ulimit-tester
+    image: debian:bullseye-slim # Ein minimales, sauberes Image
+    
+    # Wir wenden hier dieselbe ulimit-Anweisung wie bei odoo-live an
+    ulimits:
+      as:
+        soft: -1
+        hard: -1
+        
+    # Dieser Befehl wird beim Start des Containers ausgefuehrt.
+    # Er gibt die Limits aus und wartet dann unendlich, damit wir die Logs sehen koennen.
+    command: >
+      bash -c "echo '>>> Ulimit-Tester gestartet. Aktive Limits sind:'; ulimit -a; echo '>>> Test laeuft, warte...'; sleep infinity"
