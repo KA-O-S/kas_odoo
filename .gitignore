@@ -2,13 +2,11 @@
 # Runtime / Volumes (Docker, Odoo, Postgres, Nginx, Certbot)
 ###############################################################################
 
-# --- Odoo runtime data (filestore, sessions, caches, attachments, etc.) ---
+# Odoo runtime data (filestore, sessions, caches, attachments, etc.)
 odoo/**/volumes/data/
-odoo/**/volumes/data/*
 !odoo/**/volumes/data/.gitkeep
 
-# --- Odoo addons working dirs (optional, falls Sie dort Build-Artefakte haben) ---
-# (Addons selbst sollen versioniert werden; nur typische Artefakte ignorieren)
+# Odoo addons: Addons selbst versionieren – nur Artefakte ignorieren
 odoo/**/volumes/addons/**/__pycache__/
 odoo/**/volumes/addons/**/.pytest_cache/
 odoo/**/volumes/addons/**/.mypy_cache/
@@ -17,32 +15,26 @@ odoo/**/volumes/addons/**/.cache/
 odoo/**/volumes/addons/**/*.pyc
 odoo/**/volumes/addons/**/*.pyo
 
-# --- Postgres data & dumps/backups ---
+# Postgres data & backups
 postgres/volumes/data/
-postgres/volumes/data/*
 !postgres/volumes/data/.gitkeep
-
 postgres/volumes/backups/
-postgres/volumes/backups/*
 !postgres/volumes/backups/.gitkeep
 
-# --- Nginx runtime cache ---
+# Nginx runtime cache
 nginx/volumes/cache/
-nginx/volumes/cache/*
+# optional, nur wenn Sie die Ordnerstruktur erzwingen wollen:
 !nginx/volumes/cache/.gitkeep
 
-# --- Certbot / Let's Encrypt (meist nicht ins Repo) ---
-nginx/volumes/letsencrypt/
-nginx/volumes/letsencrypt/*
-!nginx/volumes/letsencrypt/.gitkeep
-
-# --- ACME webroot (challenge files) ---
+# ACME webroot (challenge files)
 nginx/volumes/www/
-nginx/volumes/www/*
 !nginx/volumes/www/.gitkeep
 
+# Certbot / Let's Encrypt (nicht ins Repo)
+nginx/volumes/letsencrypt/
+
 ###############################################################################
-# Logs / temporary files
+# Logs / temp
 ###############################################################################
 *.log
 logs/
@@ -68,7 +60,7 @@ docker-compose.override.yml
 docker-compose.*.override.yml
 
 ###############################################################################
-# Python / Node build artefacts (falls in Addons/Tools vorhanden)
+# Python / Node artefacts
 ###############################################################################
 __pycache__/
 *.py[cod]
