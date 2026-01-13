@@ -1,39 +1,78 @@
-# Python Cache und Logs
-__pycache__/
-*.pyc
-*.log
+###############################################################################
+# Runtime / Volumes (Docker, Odoo, Postgres, Nginx, Certbot)
+###############################################################################
 
-# Sensible Umgebungs-Variablen (falls vorhanden)
-.env
+# --- Odoo runtime data (filestore, sessions, caches, attachments, etc.) ---
+odoo/**/volumes/data/
+odoo/**/volumes/data/*
+!odoo/**/volumes/data/.gitkeep
 
-# --- Live-Umgebung Ausschlüsse ---
-# Live-Daten-Volumes
-odoo/live/volumes/data/
+# --- Odoo addons working dirs (optional, falls Sie dort Build-Artefakte haben) ---
+# (Addons selbst sollen versioniert werden; nur typische Artefakte ignorieren)
+odoo/**/volumes/addons/**/__pycache__/
+odoo/**/volumes/addons/**/.pytest_cache/
+odoo/**/volumes/addons/**/.mypy_cache/
+odoo/**/volumes/addons/**/.ruff_cache/
+odoo/**/volumes/addons/**/.cache/
+odoo/**/volumes/addons/**/*.pyc
+odoo/**/volumes/addons/**/*.pyo
 
-# Externe Module im Live-Verzeichnis (falls diese separat verwaltet werden)
-# odoo/live/volumes/addons/cakru/
-# ooo/live/volumes/addons/oca/
-
-# --- Stage-Umgebung Ausschlüsse ---
-# Stage-Daten-Volumes
-odoo/stage/volumes/data/
-
-# Externe Module im Stage-Verzeichnis (falls diese separat verwaltet werden)
-# odoo/stage/volumes/addons/cakru/
-# odoo/stage/volumes/addons/oca/
-
-# --- Globale Ausschlüsse ---
-# PostgreSQL Daten
+# --- Postgres data & dumps/backups ---
 postgres/volumes/data/
+postgres/volumes/data/*
+!postgres/volumes/data/.gitkeep
 
-# LetsEncrypt Zertifikate und Logs
+postgres/volumes/backups/
+postgres/volumes/backups/*
+!postgres/volumes/backups/.gitkeep
+
+# --- Nginx runtime cache ---
+nginx/volumes/cache/
+nginx/volumes/cache/*
+!nginx/volumes/cache/.gitkeep
+
+# --- Certbot / Let's Encrypt (meist nicht ins Repo) ---
 nginx/volumes/letsencrypt/
-certbot/
+nginx/volumes/letsencrypt/*
+!nginx/volumes/letsencrypt/.gitkeep
 
-# Backup-Dateien
-*.tar.gz
-# runtime caches
-nginx/volumes/cache/
+# --- ACME webroot (challenge files) ---
+nginx/volumes/www/
+nginx/volumes/www/*
+!nginx/volumes/www/.gitkeep
 
-# runtime caches
-nginx/volumes/cache/
+###############################################################################
+# Logs / temporary files
+###############################################################################
+*.log
+logs/
+log/
+*.pid
+*.swp
+*.swo
+*~
+.DS_Store
+
+###############################################################################
+# Local / tooling
+###############################################################################
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+*.iml
+
+# Docker compose overrides (lokal)
+docker-compose.override.yml
+docker-compose.*.override.yml
+
+###############################################################################
+# Python / Node build artefacts (falls in Addons/Tools vorhanden)
+###############################################################################
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+node_modules/
