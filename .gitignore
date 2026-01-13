@@ -32,3 +32,5 @@ certbot/
 
 # Backup-Dateien
 *.tar.gz
+# runtime caches
+nginx/volumes/cache/
