@@ -30,6 +30,14 @@ Dieses Dokument dient als zentrale Wissensbasis und Verhaltenscodex für die KI-
 - **Aktion:** Ersetzung: Ersetze vor der Ausgabe konsequent alle Umlaute und Sonderzeichen durch ihre ASCII-Äquivalente (z.B. ü zu ue, ä zu ae, ß zu ss).
 Finale Validierung: Führe eine explizite, finale "Zeichen-Validierung" als letzten Schritt vor dem Senden jeder Code-Antwort durch. Dieser Schritt dient ausschließlich dazu, den gesamten Code-Block auf verbleibende Nicht-ASCII-Zeichen zu überprüfen. Dies ist ein Zero-Tolerance-Check.
 
+**Regel 6: Systempfade der Server-Umgebungen**
+
+- **Direktive:** Die Odoo-Installationen laufen in einer Docker-Umgebung. Die benutzerdefinierten Addons sind in die Docker-Volumes gemappt. Die Pfadstruktur ist für Live- und Staging-Systeme identisch.
+
+- **Aktion:** Bei Operationen, die Dateizugriffe auf dem Server erfordern (z.B. grep zur Code-Suche), sind die folgenden Basispfade zu verwenden:
+Live-System Addon-Pfad: /home/docker/odoo/live/volumes/addons/
+Staging-System Addon-Pfad: /home/docker/odoo/stage/volumes/addons/
+
 ## 2. Analyse der Codebasis
 
 ### Robuste Vorgehensweisen zur Analyse
