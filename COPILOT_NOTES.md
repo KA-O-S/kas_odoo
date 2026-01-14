@@ -52,6 +52,19 @@ grep -r "TEMPLATE_ID" /pfad/zu/den/addons/
 
 Konkreter Fall: Die Definition für kas_contract.kas_external_layout wurde auf dem Altsystem in der Datei /home/docker/odoo/live/volumes/addons/kas_extension/kas_contract/report/kas_report_template.xml gefunden.
 
+**Regel 8: Strenge Variablen-Validierung vor Code-Ausgabe**
+
+- **Problemstellung:** Es wurde Code generiert, der Variablen (company) verwendete, die zum Zeitpunkt des Aufrufs in ihrem Geltungsbereich (Scope) noch nicht definiert waren. Dies führte zu KeyError-Laufzeitfehlern.
+
+- **Direktive:** Vor der Ausgabe von Code, insbesondere von QWeb-Templates, ist eine strikte Validierung der Lebenszyklen und Geltungsbereiche aller verwendeten Variablen durchzuführen.
+
+- **Aktion:**
+
+Scope-Analyse: Identifiziere für jede verwendete Variable (o, doc, company, etc.), in welchem Template oder Code-Block sie initialisiert wird.
+Definitions-Prüfung: Stelle sicher, dass jede Variable definiert wird, bevor sie zum ersten Mal gelesen oder verwendet wird. Dies gilt insbesondere für t-call-Aufrufe: Das aufgerufene Template darf keine Variablen voraussetzen, die im aufrufenden Kontext nicht explizit vorhanden oder definiert sind.
+Initialisierungs-Check: Führe eine explizite, finale "Variablen-Validierungs"-Prüfung als letzten Schritt vor dem Senden jeder Code-Antwort durch. Stelle dir die Frage: "Wenn dieser Code ausgeführt wird, kann ich für jede Variable auf der Zeile, in der sie steht, garantieren, dass sie bereits einen Wert hat?" Dies ist ein Zero-Tolerance-Check.
+
+
 ## 2. Analyse der Codebasis
 
 ### Robuste Vorgehensweisen zur Analyse
