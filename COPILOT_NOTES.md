@@ -38,6 +38,20 @@ Finale Validierung: Führe eine explizite, finale "Zeichen-Validierung" als letz
 Live-System Addon-Pfad: /home/docker/odoo/live/volumes/addons/
 Staging-System Addon-Pfad: /home/docker/odoo/stage/volumes/addons/
 
+**Regel 7: Auffinden von kritischen Report-Layouts**
+
+- **Erkenntnis:** Das zentrale Layout-Template kas_contract.kas_external_layout, das für das Rendering von Berichten mit SVG-Briefkopf und -Footer verantwortlich war, existierte auf dem Altsystem nicht als eigenständige Ansicht in der Odoo-Datenbank. Es war nur als Teil einer physischen XML-Datei auf dem Server vorhanden.
+
+   **Aktion:** Um solche "versteckten" oder nicht korrekt in der Datenbank registrierten Templates zuverlässig zu finden, ist die Suche über die Odoo-Benutzeroberfläche unzureichend.
+
+- **Anweisung für die Zukunft:** Wenn ein Report-Template (insbesondere ein external_layout) nicht über die Odoo-UI gefunden werden kann, ist der folgende grep-Befehl auf dem Server auszuführen, um den physischen Speicherort des Codes zu ermitteln:
+
+bash
+grep -r "TEMPLATE_ID" /pfad/zu/den/addons/
+(Ersetze TEMPLATE_ID durch die gesuchte ID und /pfad/zu/den/addons/ durch den relevanten Systempfad gemäß Regel 6).
+
+Konkreter Fall: Die Definition für kas_contract.kas_external_layout wurde auf dem Altsystem in der Datei /home/docker/odoo/live/volumes/addons/kas_extension/kas_contract/report/kas_report_template.xml gefunden.
+
 ## 2. Analyse der Codebasis
 
 ### Robuste Vorgehensweisen zur Analyse
