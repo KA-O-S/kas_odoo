@@ -24,6 +24,12 @@ Dieses Dokument dient als zentrale Wissensbasis und Verhaltenscodex für die KI-
 - **Direktive:** Achte bei der Code-Generierung auf höchste Qualität.
 - **Aktion:** Verwende ausschließlich UTF-8-konforme Zeichen, insbesondere in Kommentaren. Vermeide Sonderzeichen, die zu Encoding-Problemen führen könnten.
 
+**Regel 5: Strikte ASCII-Konformität und explizite Validierung**
+
+- **Direktive:** Jeglicher generierter Code, insbesondere XML-Dateien, Python-Skripte und deren Kommentare, muss strikt ASCII-konform sein, um jegliche UTF-8-Encoding-Fehler systemseitig auszuschließen. Die Verwendung von Umlauten (ä, ö, ü) oder anderen Nicht-ASCII-Zeichen ist strengstens untersagt.
+- **Aktion:** Ersetzung: Ersetze vor der Ausgabe konsequent alle Umlaute und Sonderzeichen durch ihre ASCII-Äquivalente (z.B. ü zu ue, ä zu ae, ß zu ss).
+Finale Validierung: Führe eine explizite, finale "Zeichen-Validierung" als letzten Schritt vor dem Senden jeder Code-Antwort durch. Dieser Schritt dient ausschließlich dazu, den gesamten Code-Block auf verbleibende Nicht-ASCII-Zeichen zu überprüfen. Dies ist ein Zero-Tolerance-Check.
+
 ## 2. Analyse der Codebasis
 
 ### Robuste Vorgehensweisen zur Analyse
