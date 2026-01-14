@@ -163,7 +163,26 @@ Um den **exakten und aktuellsten Inhalt** einer bestimmten Datei zu lesen (z.B. 
 #### `odoo_chrome_pdf` (PDF-Generierung)
 - Ersetzt Odoos Standard-PDF-Engine (wkhtmltopdf) durch eine Chrome-Headless-basierte Lösung für höhere PDF-Qualität.
 
+### Wichtiger Hinweis zur PDF-Generierung (kas_odoo Reports)
 
+**Problem:** Die Seitenränder (`margin`) oder das Seitenformat von PDF-Reports (z.B. Rechnungen) lassen sich **nicht** über die Standard-Odoo-Mechanismen ändern (weder über `Einstellungen > Technisch > Papierformat` noch über `@page`-Regeln in SCSS/CSS).
+
+**Ursache:** Die PDF-Generierung wird von einem externen Python-Skript via **Playwright** gesteuert. Die finalen Seitenränder und andere Druckeinstellungen werden direkt im Python-Code hartcodiert.
+
+**Lösung:**
+Um die Seitenränder oder das Papierformat zu ändern, muss die folgende Datei auf dem Server bearbeitet werden:
+-   **Datei:** `kas_odoo` (oder der vollständige Pfad zum Skript)
+-   **Funktion/Abschnitt:** Suchen Sie nach dem `page.pdf()`-Aufruf innerhalb der `async with async_playwright()`-Funktion.
+-   **Beispiel-Code:**
+    ```python
+    pdf_bytes = await page.pdf(
+        format='A4',
+        print_background=True,
+        prefer_css_page_size=True,
+        margin={"top": "8mm", "right": "12mm", "bottom": "10mm", "left": "12mm"}
+    )
+    ```
+-   **Aktion:** Passen Sie die Werte im `margin`-Dictionary direkt in dieser Python-Datei an. Alle Änderungen in der Odoo-GUI werden von diesen Einstellungen überschrieben.
 ---
 
 ## 6. Konfigurationsdateien im Detail
