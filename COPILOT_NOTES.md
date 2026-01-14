@@ -64,6 +64,46 @@ Scope-Analyse: Identifiziere für jede verwendete Variable (o, doc, company, etc
 Definitions-Prüfung: Stelle sicher, dass jede Variable definiert wird, bevor sie zum ersten Mal gelesen oder verwendet wird. Dies gilt insbesondere für t-call-Aufrufe: Das aufgerufene Template darf keine Variablen voraussetzen, die im aufrufenden Kontext nicht explizit vorhanden oder definiert sind.
 Initialisierungs-Check: Führe eine explizite, finale "Variablen-Validierungs"-Prüfung als letzten Schritt vor dem Senden jeder Code-Antwort durch. Stelle dir die Frage: "Wenn dieser Code ausgeführt wird, kann ich für jede Variable auf der Zeile, in der sie steht, garantieren, dass sie bereits einen Wert hat?" Dies ist ein Zero-Tolerance-Check.
 
+## Regel 9: Architektur der Report-Generierung
+
+### 1. Grundprinzip: Zentrales vs. Eigenständiges Layout
+
+Die Report-Architektur unterliegt einem zentralen Prinzip:
+
+- **Zentrales Layout (`kas_contract`):** Das Modul `kas_contract` stellt ein Master-Layout namens `kas_contract.kas_external_layout` bereit. Dieses Template definiert den **Rahmen (Briefkopf/Fußzeile)**, in den andere Dokumente ihren Inhalt einbetten. Dokumente wie Verträge und **Rechnungen** MÜSSEN dieses zentrale Layout verwenden, um ein einheitliches Erscheinungsbild zu gewährleisten.
+
+- **Architektur-Prinzip:** Das System basiert auf einer zentralen Layout-Definition. Das Modul kas_contract stellt ein Haupt-Layout-Template (kas_contract.kas_external_layout) bereit. Dieses ist verantwortlich für die Darstellung des globalen Headers (contract_logo) und Footers (contract_footer). Alle anderen Dokumente (z.B. Verträge, aber auch die Rechnung aus kas_extension) MÜSSEN dieses zentrale Template mittels <t t-call="kas_contract.kas_external_layout"> aufrufen, um ein einheitliches Erscheinungsbild zu gewährleisten.
+
+- **Eigenständige Layouts (`kas_extension`):** Dokumente, die ein bewusst abweichendes Design haben (z.B. der Zeitnachweis), definieren ihr eigenes, komplettes Layout und rufen das zentrale Layout NICHT auf.
+
+- **Problemstellung bei Migration/Anpassung:** Bei der Anpassung der Rechnungs-Vorlage (report_invoice_account_move_kas) traten Layout-Probleme auf (falsche Positionierung von Header/Footer). Die Lösungsversuche waren fehlerhaft, weil sie dieses Architektur-Prinzip verletzten.
+- 
+### 2. Implementierungs-Direktive
+
+- **Anweisung:** Bei Änderungen an einem Dokument, das dem zentralen Layout folgt (z.B. `report_invoice_account_move_kas`), darf **NICHT** versucht werden, das Layout innerhalb des Dokumenten-Templates neu zu erfinden.
+- **Aktion:** Stattdessen MUSS das zentrale Layout-Template (`kas_contract.kas_external_layout` in `kas_report_template.xml`) so angepasst werden, dass es für die neue Odoo-Version korrekt funktioniert. Die aufrufenden Templates (wie die Rechnung) bleiben strukturell unverändert und behalten ihren Aufruf `<t t-call="kas_contract.kas_external_layout">` bei.
+- **Fehlervermeidung:** Jeder Versuch, ein konkurrierendes Layout-Template innerhalb von `kas_extension` für die Rechnung zu erstellen (z.B. `kas_extension.kas_external_layout`), ist ein **Verstoß gegen diese Architektur** und führt zu unvorhersehbaren Render-Fehlern.
+
+### 3. Komponenten-Übersicht
+
+Die folgende Tabelle dient als Referenz, um die Zuständigkeiten und Abhängigkeiten der einzelnen Komponenten schnell zu identifizieren.
+
+| Definierte ID | Typ | Modul | Quelldatei | Zweck |
+| :--- | :--- | :--- | :--- | :--- |
+| **kas_external_report** | Template | kas_contract | `kas_report_template.xml` | Stellt das visuelle Layout mit Header/Footer-Bildern bereit. |
+| **kas_external_layout** | Template | kas_contract | `kas_report_template.xml` | **Das ZENTRALE MASTER-LAYOUT.** Technischer Wrapper, der `kas_external_report` aufruft. |
+| `report_contract_tl` | Template | kas_contract | `ir_actions_report_templates.xml` | Inhalt des Teilleistungsvertrags. |
+| `report_contract_ra` | Template | kas_contract | `ir_actions_report_templates.xml` | Inhalt des Rahmenvertrags. |
+| `report_contract_evl` | Template | kas_contract | `ir_actions_report_templates.xml` | Inhalt des Vertrags für erfolgsabhängige Leistung. |
+| `action_report_contract_tl` | Report | kas_contract | `ir_actions_report.xml` | Macht den Teilleistungsvertrag druckbar. |
+| `action_report_contract_ra` | Report | kas_contract | `ir_actions_report.xml` | Macht den Rahmenvertrag druckbar. |
+| `action_report_contract_evl` | Report | kas_contract | `ir_actions_report.xml` | Macht den Vertrag für erfolgsabhängige Leistung druckbar. |
+| `report_invoice_account_move_kas` | Template | kas_extension | `invoice_template.xml` | Inhalt der Rechnung. **Hängt von `kas_contract.kas_external_layout` ab.** |
+| `document_tax_totals_template_kas`| Template | kas_extension | `invoice_template.xml` | Benutzerdefiniertes Layout für die Steuersummen auf der Rechnung. |
+| `report_timesheet_account_move_kas_ex`| Template | kas_extension | `timesheet_template.xml` | Hauptvorlage für den Zeitnachweis mit eigenem Header. **Unabhängig von `kas_contract`.** |
+| `kas_timesheet_table` | Template | kas_extension | `timesheet_template.xml` | Detaillierte Tabelle, die im Zeitnachweis verwendet wird. |
+| `timesheet_report_sale_order_kas`| Template | kas_extension | `timesheet_template.xml` | Einstiegspunkt für den Druck von Zeitnachweisen aus Verkaufsaufträgen. |
+| `timesheet_report_project_kas` | Template | kas_extension | `timesheet_template.xml` | Einstiegspunkt für den Druck von Zeitnachweisen aus Projekten. |
 
 ## 2. Analyse der Codebasis
 
@@ -122,6 +162,7 @@ Um den **exakten und aktuellsten Inhalt** einer bestimmten Datei zu lesen (z.B. 
 
 #### `odoo_chrome_pdf` (PDF-Generierung)
 - Ersetzt Odoos Standard-PDF-Engine (wkhtmltopdf) durch eine Chrome-Headless-basierte Lösung für höhere PDF-Qualität.
+
 
 ---
 
