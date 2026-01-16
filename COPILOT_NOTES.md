@@ -452,3 +452,62 @@ RUN mkdir -p /var/lib/odoo && chown -R odoo:odoo /var/lib/odoo
 # Zurueck zum odoo-Benutzer fuer den normalen Betrieb
 USER odoo
 ```
+
+### Troubleshooting-Protokoll: 502 Bad Gateway Error
+
+Ein **502 Bad Gateway**-Fehler von Nginx bedeutet, dass Nginx den dahinterliegenden Odoo-Dienst nicht erreichen konnte. Die Ursache liegt fast immer in der Odoo-Instanz, nicht in Nginx selbst. Die folgende Prüfreihenfolge hat sich als effektiv erwiesen, um die Ursache systematisch zu finden.
+
+**1. Läuft der Dienst überhaupt? (Existenz-Check)**
+
+Der erste und wichtigste Schritt ist zu prüfen, ob die Docker-Container überhaupt laufen.
+
+```bash
+docker ps -a
+```
+
+*   **Erkenntnis:** In unserem Fall liefen weder der `odoo-live` noch der `nginx` Container. Ein `docker-compose up -d` war die Lösung.
+*   **Regel:** Bevor eine tiefere Analyse beginnt, muss sichergestellt sein, dass der `STATUS` aller relevanten Container (`odoo-live`, `nginx`, `db`) auf `Up` steht.
+
+**2. Ist der Odoo-Prozess im Container aktiv? (Interner Check)**
+
+Wenn der Container läuft, aber nicht antwortet, muss der Prozess *im* Container geprüft werden.
+
+```bash
+# Prüft, ob Odoo auf seinen Port (hier 8069) lauscht.
+# Ersetze odoo-live durch odoo-stage und 8069 durch 9069 für die Testumgebung.
+docker exec odoo-live netstat -tuln | grep 8069
+```
+
+*   **Erwartetes Ergebnis:** Eine Zeile, die mit `tcp ... LISTEN` endet.
+*   **Fehlendes Ergebnis bedeutet:** Der Odoo-Prozess im Container ist abgestürzt oder hängt. Die Ursache muss im Odoo-Log gesucht werden.
+
+**3. Ist der Odoo-Container aus dem Nginx-Container erreichbar? (Netzwerk-Check)**
+
+Wenn Odoo intern läuft, muss die Netzwerkverbindung zwischen den Containern geprüft werden.
+
+```bash
+# Versucht, vom Nginx-Container aus den Odoo-Container zu erreichen.
+docker exec nginx curl --connect-timeout 5 http://odoo-live:8069
+```
+
+*   **Erwartetes Ergebnis:** HTML-Code der Odoo-Login-Seite.
+*   **Fehler `Could not resolve host`:** Beweist ein Problem mit dem Docker-internen DNS.
+*   **Fehler `Connection timed out` oder `Connection refused`:** Beweist ein Netzwerk- oder Firewall-Problem zwischen den Containern.
+
+**4. Liefert ein Modul-Update Fehler? (Odoo-Software-Check)**
+
+Wenn alle obigen Schritte erfolgreich sind, aber der Server nach einem Code-Update nicht startet, liegt der Fehler im Odoo-Modulcode. Ein manuelles Update mit detaillierten Logs ist der Weg zur Fehlerfindung.
+
+```bash
+# Führt ein Update für ein bestimmtes Modul mit maximalem Log-Level aus.
+docker-compose run --rm odoo-live -u <modulname> --log-level=debug_rpc_answer
+```
+
+*   **Aktion:** Die Log-Ausgabe dieses Befehls analysieren. Sie wird den exakten `Traceback` oder die letzte erfolgreiche Operation vor dem Einfrieren zeigen.
+*   **Häufige Ursachen (in unserem Fall geprüft):**
+    *   Syntaxfehler in `.py`-Dateien (z.B. `__init__.py`).
+    *   Fehlende Abhängigkeiten im `__manifest__.py` (z.B. `'sale'` fehlte, was zu `unknown comodel_name 'sale.order'` führte).
+    *   Blockierende Datenbank-Sessions durch vorherige, fehlgeschlagene Updates.
+
+Dieses strukturierte Vorgehen verhindert Spekulation und führt durch den Nachweis oder Ausschluss von Fehlern auf jeder Ebene systematisch zur wahren Ursache.
+
