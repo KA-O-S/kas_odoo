@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
      <template id="kas_external_report">
-        <div t-attf-class="header" >
+        <div t-attf-class="header">
             <div class="row">
                 <div class="col-3 mb4">
                     <img t-if="company.contract_logo" t-att-src="image_data_uri(company.contract_logo)" style="max-height: 133px;" alt="Logo"/>
@@ -13,15 +13,15 @@
             <t t-out="0"/>
         </div>
 
-        <div t-attf-class="footer o_standard_footer">
-            <div>
+        <div t-attf-class="footer o_standard_footer" style="position: fixed; bottom: 0cm; width: 100%;">
+            <div class="text-center">
                 <div t-if="report_type == 'pdf'" class="text-muted" style="text-align: right;">
                     Seite: <span class="page"/> / <span class="topage"/>
                 </div>
+                
                 <div class="mb4">
                     <img t-if="company.contract_footer" t-att-src="image_data_uri(company.contract_footer)" style="max-height: 133px;" alt="Logo"/>
                 </div>
-
                 <div t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted">
                     <span t-out="o.name">(document name)</span>
                 </div>

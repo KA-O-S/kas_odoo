@@ -24,6 +24,7 @@
         <xpath expr="//group[@id='header_right_group']//field[@name='invoice_date']" position="after">
             <field name="period_performance"/>
             <field name="with_timesheet" widget="boolean_toggle"/>
+	    <field name="with_prepayment" widget="boolean_toggle"/>
         </xpath>
       </field>
       </record>

@@ -1,0 +1,2 @@
+cat: unrecognized option '--rm'
+Try 'cat --help' for more information.

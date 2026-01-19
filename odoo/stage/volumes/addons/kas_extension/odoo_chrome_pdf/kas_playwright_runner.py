@@ -37,7 +37,7 @@ async def main():
             browser = await p.chromium.launch(args=['--no-sandbox'])
             page = await browser.new_page()
             await page.set_content(html_string, wait_until='networkidle')
-            pdf_bytes = await page.pdf(format='A4', print_background=True)
+            pdf_bytes = await page.pdf(format='A4', print_background=True, prefer_css_page_size=True, margin={"top": "8mm", "right": "12mm", "bottom": "10mm", "left": "12mm"},)
             await browser.close()
             sys.stdout.buffer.write(pdf_bytes)
             logging.info(f"PDF generiert. Groesse: {len(pdf_bytes)} bytes.")

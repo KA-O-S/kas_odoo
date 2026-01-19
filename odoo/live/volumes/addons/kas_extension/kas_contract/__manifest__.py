@@ -24,7 +24,6 @@
     'data': [
 
         'security/ir.model.access.csv',
-
         'views/kas_sale_order_views.xml',
         'views/contract_components_views.xml',
         'views/contract_menu.xml',

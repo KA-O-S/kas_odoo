@@ -18,12 +18,13 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'account'],
+    'depends': ['base', 'account', 'sale'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         'data/invoice_seq.xml',
+        'views/res_company_views.xml',
         'views/hr_timesheet_views.xml',
         'views/invoice_view.xml',
         'report/ir_actions_report.xml',
