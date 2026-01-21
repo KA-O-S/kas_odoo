@@ -31,6 +31,7 @@
         'report/ir_actions_report.xml',
         'report/ir_actions_report_templates.xml',
         'report/kas_report_template.xml',
+        'report/footer_test.xml',
         'wizard/sale_advance_payment_inv_view.xml'
     ],
     'assets': {

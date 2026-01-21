@@ -247,7 +247,7 @@
                          <span t-field="o.partner_id.street"/><br/>
                          <span t-field="o.partner_id.zip" />
                          <span t-field="o.partner_id.city"/><br/>
-                         <i><span>– nachfolgend „Auftrageber" –</span></i>
+                         <i><span>– nachfolgend „Auftraggeber" –</span></i>
                            <br></br>
                           <p>am</p>
                            <b><span t-esc="o.date_order.strftime('%d.%m.%Y')"/></b>
@@ -285,17 +285,17 @@
                    <div>
                        <t t-set="filtered_components" t-value="o.contract_components.filtered(lambda c: c.position == 'sub' and not c.order_inline_text).sorted(key=lambda c: c.sequence)"/>
                        <t t-foreach="filtered_components" t-as="component">
-                       <!--<t t-if="component.position == 'sub' and not component.order_inline_text">-->
-                       <t t-if="component.page_break">
-                            <div style="page-break-before: always;" ></div>
+                       <t t-if="component.position == 'sub' and not component.order_inline_text">
+                            <t t-if="component.page_break">
+                                    <div style="page-break-before: always;" ></div>
+                            </t>
+                            <t t-set="counter" t-value="counter + 1"/>
+                                <div class="section-box">
+                                <h5>§ <span t-esc="counter"/>. <span t-field="component.name"/> </h5>
+                                </div>
+                                    <span t-field="component.text_block"/>
+                            </t>
                        </t>
-                        <t t-set="counter" t-value="counter + 1"/>
-                            <div class="section-box">
-                               <h5>§ <span t-esc="counter"/>. <span t-field="component.name"/> </h5>
-                            </div>
-                                <span t-field="component.text_block"/>
-                        </t>
-                       <!--</t>-->
                    </div>
                    <div>
                        <t t-if="o.page_break_signature">

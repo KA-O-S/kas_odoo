@@ -29,5 +29,14 @@
         <field name="binding_model_id" ref="model_sale_order"/>
         <field name="binding_type">report</field>
     </record>
-
+       <!-- Dies ist der neue, temporäre Dummy-Report nur für Debugging-Zwecke -->
+    <record id="action_report_footer_debugger" model="ir.actions.report">
+        <field name="name">==== FOOTER DEBUGGER ====</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">kas_contract.kas_footer_test_template</field>
+        <field name="report_file">kas_contract.kas_footer_test_template</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
 </odoo>

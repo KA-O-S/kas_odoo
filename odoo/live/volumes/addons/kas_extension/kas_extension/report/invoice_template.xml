@@ -352,7 +352,7 @@
                                             <p style="line-height: 1.5;font-size: 11px;" t-if="not is_html_empty(o.fiscal_position_id.note)"
                                                 name="note" class="mb-2">
                                                 <span t-field="o.fiscal_position_id.note" />
-                                            </p>
+                                            </p> 
                                         </div>
                                         <t t-set="payment_term_details"
                                             t-value="o.payment_term_details" />

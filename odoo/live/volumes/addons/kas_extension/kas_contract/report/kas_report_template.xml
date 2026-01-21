@@ -46,4 +46,44 @@
         </t>
         <t t-call="kas_contract.kas_external_report"><t t-out="0"/></t>
     </template>
+
+    <template id="kas_layout_header">
+        <!-- Multi-Company-Logik -->
+        <t t-if="not o and docs" t-set="o" t-value="docs[0]"/>
+        <t t-if="not company">
+            <t t-if="company_id" t-set="company" t-value="company_id"/>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()" t-set="company" t-value="o.company_id.sudo()"/>
+            <t t-else="else" t-set="company" t-value="res_company"/>
+        </t>
+        
+        <!-- Das eigentliche Header-HTML (kopiert aus kas_external_report) -->
+        <div class="header">
+            <div class="row">
+                <div class="col-6 mb-4" style="padding-left: 20px;">
+                    <img t-if="company.contract_logo" t-att-src="image_data_uri(company.contract_logo)" style="max-width: 100%;" alt="Logo"/>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- NEUES, EIGENSTÄNDIGES FOOTER-TEMPLATE -->
+    
+    <template id="kas_layout_footer">
+        <!-- Multi-Company-Logik -->
+        <t t-if="not o and docs" t-set="o" t-value="docs[0]"/>
+        <t t-if="not company">
+            <t t-if="company_id" t-set="company" t-value="company_id"/>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()" t-set="company" t-value="o.company_id.sudo()"/>
+            <t t-else="else" t-set="company" t-value="res_company"/>
+        </t>
+        
+        <!-- Das eigentliche Header-HTML (kopiert aus kas_external_report) -->
+        <div class="footer">
+            <div class="row">
+                <div class="col-12" style="padding-left: 20px; padding-right: 20px;">
+                    <img t-if="company.contract_footer" t-att-src="image_data_uri(company.contract_footer)" style="max-width: 100%;" alt="Logo"/>
+                </div>
+            </div>
+        </div>
+    </template>
 </odoo>

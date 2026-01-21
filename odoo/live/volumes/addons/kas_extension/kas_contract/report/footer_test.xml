@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="kas_footer_test_template">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not company">
+            <t t-if="company_id"><t t-set="company" t-value="company_id"/></t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()"><t t-set="company" t-value="o.company_id.sudo()"/></t>
+            <t t-else="else"><t t-set="company" t-value="res_company"/></t>
+        </t>
+
+        <div class="footer" style="width: 100%; font-size: 10px; padding: 0 12mm;">
+                        <!-- ===== START: UNUEBERSEHBARER DEBUG-TEXT ===== -->
+            <p style="color: red; font-weight: bold; font-size: 16px; text-align: center; border: 3px solid red;">
+                DEBUG-NACHWEIS: 'footer_test.xml' WIRD VERWENDET!
+            </p>
+            <!-- ===== ENDE: UNUEBERSEHBARER DEBUG-TEXT ===== -->
+            <div class="text-center">
+                <div class="text-muted" style="text-align: right;">
+                    Seite: <span class="pageNumber"></span> / <span class="totalPages"></span>
+                </div>
+                <div class="mb4">
+                    <!-- Dies ist der nachweislich funktionierende Code -->
+                    <img t-if="company.contract_footer" t-att-src="image_data_uri(company.contract_footer)" style="max-height: 133px; margin: 0 auto; display: block;" alt="Footer-Logo"/>
+                </div>
+                <div t-if="display_name_in_footer" class="text-muted">
+                    <span t-out="o.name"></span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ============================================= -->
+    <!--     NEUES, EINDEUTIGES HEADER-TEST-TEMPLATE     -->
+    <!-- ============================================= -->
+    <template id="kas_header_test_template">
+        <div style="width: 100%; border: 5px solid green; padding: 10px; background-color: #e6ffe6;">
+            <h1 style="color: green; text-align: center; font-weight: bold;">
+                DEBUG-NACHWEIS: 'header_test_template' WIRD VERWENDET!
+            </h1>
+        </div>
+    </template>
+</odoo>
