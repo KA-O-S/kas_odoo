@@ -395,8 +395,7 @@
 
                    </div>
                    <div>
-                       <t t-if="o.page_break_signature">
-                            <div style="page-break-before: always;" ></div>
+                       <t t-if="o.page_break_signature" style="page-break-before: always;">
                        </t>
                    <t t-name="report_sales_order_lines">
                    <table style="width: 100%; margin-top: 70px; border: none; border-collapse: collapse; background-color: transparent;">
@@ -424,5 +423,347 @@
            </t>
        </t>
    </template>
+<template id="report_contract_master">
+       <t t-call="web.html_container">
+           <t t-foreach="docs" t-as="o">
 
+               <t t-call="kas_contract.kas_external_layout">
+                    <!-- ========================================================== -->
+                <!-- NEU: PREISE FÜR PLATZHALTER SAMMELN                        -->
+                <!-- ========================================================== -->
+                <t t-set="jun_price" t-value="0.0"/>
+                <t t-set="sen_price" t-value="0.0"/>
+                <t t-set="par_price" t-value="0.0"/>
+
+                <t t-foreach="o.order_line" t-as="line">
+                    <t t-if="'Junior' in line.name">
+                        <t t-set="jun_price" t-value="line.price_unit"/>
+                    </t>
+                    <t t-if="'Senior' in line.name">
+                        <t t-set="sen_price" t-value="line.price_unit"/>
+                    </t>
+                    <t t-if="'Partner' in line.name">
+                        <t t-set="par_price" t-value="line.price_unit"/>
+                    </t>
+                </t>
+                <!-- ========================================================== -->
+                <!-- NEU: VERTRAGSENDE-DATUM BERECHNEN UND FORMATIEREN          -->
+                <!-- ========================================================== -->
+                <t t-if="o.date_contract_duration">
+                    <t t-set="contract_end_date_str" t-value="o.date_contract_duration.strftime('%d.%m.%Y')"/>
+                </t>
+                <t t-else="">
+                    <t t-set="date_plus_one_year" t-value="o.validity_date + datetime.timedelta(days=365)"/>
+                    <t t-set="contract_end_date_str" t-value="date_plus_one_year.strftime('%d.%m.%Y')"/>
+                </t>
+                <!-- ========================================================== -->
+
+                    <div class="page" style="text-align: center;page-break-inside: avoid;" >
+                       <div class="oe_structure"/>
+                       <div t-if="o.contract_type == 'ra'">
+                            <h1>Rahmenvertrag</h1>
+                        </div>
+                        <div t-if="o.contract_type == 'tl'">
+                            <h1>Teilleistungsvertrag</h1>
+                        </div> 
+                        <div t-if="o.contract_type == 'evl'">
+                                <h1>Teilleistungsvertrag</h1>
+                        </div>
+                            <table style="width: 100%; border-style: none; border-collapse: collapse;">
+                                <tbody>
+                                    <!-- Zeile 1: Überschriften -->
+                                    <tr style="border-style: none;text-align: center;">
+                                        <td style="width: 40%; padding: 5px; border-style: none;"><strong>Auftragnehmer</strong></td>
+                                        <td style="width: 60%; padding: 5px; border-style: none;"><strong>Auftraggeber</strong></td>
+                                    </tr>
+                                    <!-- Zeile 2: Adressblöcke -->
+                                    <tr style="border-style: none;text-align: center;">
+                                        <!-- Linke Spalte: Ihre Firma -->
+                                        <td style="vertical-align: top; padding: 5px; border-style: none;line-height: 1.5;">
+                                            <b><span t-field="o.company_id.name"/></b><br/>
+                                            <span t-field="o.company_id.street"/><br/>
+                                            <span t-field="o.company_id.zip"/> <span t-field="o.company_id.city"/>
+                                        </td>
+                                        <!-- Rechte Spalte: Der Kunde -->
+                                        <td style="vertical-align: top; padding: 5px; border-style: none;line-height: 1.5;text-align: center;">
+                                            <b><span t-field="o.partner_id.name"/></b><br/>
+                                            <span t-field="o.partner_id.street"/><br/>
+                                            <span t-field="o.partner_id.zip"/> <span t-field="o.partner_id.city"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                       
+                       <p style="text-align: center; margin-top: 1rem;margin-bottom: 3rem;">
+                            Der Auftragnehmer unterbreitet dem Auftraggeber am <b><span t-esc="o.date_order.strftime('%d.%m.%Y')"/></b>
+
+                            <!-- Dieser t-out gibt den passenden Textblock je nach Vertragstyp aus.
+                                Wichtig ist das Leerzeichen am Anfang jedes Textes. -->
+                            <t t-if="o.contract_type == 'ra'"> den Abschluss eines Dienstleistungsrahmenvertrages mit folgendem Inhalt:</t>
+                            <t t-else=""> den Abschluss eines Teilleistungsvertrages Vertrages auf Basis des Rahmenvertrages vom <b><span t-field="o.date_initial_contract"/></b> mit folgendem Inhalt:</t>
+                        </p>
+                   
+
+                        <t t-set="counter" t-value="0"/>
+                        <t t-set="signature_list" t-value="[]"/>
+                        <div style="text-align: left;">
+                            <t t-set="filtered_components" t-value="o.contract_components.filtered(lambda c: c.position == 'pre' and not c.order_inline_text).sorted(key=lambda c: c.sequence)"/>
+                            <t t-foreach="filtered_components" t-as="component">
+                            <t t-if="component.page_break">
+                                    <div style="page-break-before: always;" ></div>
+                            </t>
+                            <t t-set="counter" t-value="counter + 1"/>
+                                <t t-if="component.section_signature">
+                                    <t t-set="signature_list" t-value="signature_list + ['§' + str(counter)]"/>
+                                </t>
+                                <!-- <div style="page-break-inside: avoid;"> -->
+                                    <div class="section-box">
+                                    <h3>§ <span t-esc="counter"/>. <span t-field="component.name"/> </h3>
+                                    </div>
+                                    <!-- 1. Rohen HTML-String aus dem Feld lesen -->
+                                    <t t-set="raw_html" t-value="o.env['sale.order.contract'].browse(component.id).text_block or ''"/>
+
+                                    <!-- 2. Ersetzungen auf dem rohen String durchführen, so die Keywords drin sind -->
+                                    <t t-set="processed_html" t-value="raw_html
+                                    .replace('JUNSTDSATZ', '%s €' % ('%.2f' % jun_price).replace('.', ','))
+                                    .replace('SENSTDSATZ', '%s €' % ('%.2f' % sen_price).replace('.', ','))
+                                    .replace('PARSTDSATZ', '%s €' % ('%.2f' % par_price).replace('.', ','))
+                                    .replace('CONTRACTENDDATE', contract_end_date_str)
+                                    "/>
+                                    <!-- 3. Das Ergebnis als rohes HTML ausgeben -->
+                                    <t t-raw="processed_html"/>
+                                <!-- /div> --> 
+                            </t>
+                        </div>  
+                   </div>
+                <!-- Leistungspositionen    -->
+                   <div t-if="o.contract_type != 'ra'">
+                       <t t-if="o.page_break_orderline" style="page-break-before: always;">
+                       </t>
+
+                        <div class="section-box" style="page-break-after: avoid;">
+                            <t t-set="counter" t-value="counter + 1"/>
+
+                            <h3>§ <span t-esc="counter"/>. Leistungspositionen </h3>
+                        </div>
+                        <div>
+                            <t t-set="counter_inline" t-value="0"/>
+                            <t t-set="filtered_components" t-value="o.contract_components.filtered(lambda c: c.position == 'pre' and c.order_inline_text).sorted(key=lambda c: c.sequence)"/>
+                            <t t-foreach="filtered_components" t-as="component">
+                            <t t-if="component.page_break">
+                                    <div style="page-break-before: always;" ></div>
+                            </t>
+                                <t t-set="counter_inline" t-value="counter_inline + 1"/>
+                                        <span t-field="component.text_block"/>
+
+                            </t>
+                        </div>
+                        <table class="table table-sm o_main_table table-borderless mt-4" >
+                            <thead >
+                                <tr style="border-bottom: 1px solid #000;">
+                                    <th style="text-align: left; ">Leistungsinhalte </th>
+                                    <th style="border: none; text-align: right;" >Summe (netto)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="current_subtotal" t-value="0"/>
+                                <t t-set="counter_section" t-value="0"/>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-if="line.product_uom.name == 'pschl.'">
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                                    </t>
+                                        <tr t-att-style="'background-color: #f2f2f2;' if line.display_type == 'line_section' else ''" style="border: none;">
+                                            <div style="page-break-inside: avoid;">
+                                                <t t-if="not line.display_type">
+                                                    <td name="td_name" style="font-weight: bold;line-height: 1.5;"><span t-field="line.name"></span></td>
+                                                    <td t-if="not line.is_downpayment and line.product_uom.name == 'pschl.'" name="td_subtotal" class="text-end o_price_total" style="text-align: right; border: none; background-color: transparent;">
+                                                        <span t-field="line.price_subtotal"></span>
+                                                    </td>
+                                                    <td t-if="not line.is_downpayment and line.product_uom.name != 'pschl.'" name="td_subtotal" class="text-end o_price_total" style="border: none; background-color: transparent;">
+                                                        <span t-field="line.product_uom.name"></span>
+                                                    </td>
+                                                </t>
+                                                <t t-elif="line.display_type == 'line_section'">
+                                                    <t t-set="counter_section" t-value="counter_section + 1"/>
+                                                    <td name="td_section_line" colspan="2" style="background-color: #f2f2f2; font-weight: bold; line-height: 1.5; padding: 4px 8px;">
+                                                        <span>Pos. <span t-esc="counter_section"/>: <span t-field="line.name"></span></span>
+                                                    </td>
+                                                    <t t-set="current_section" t-value="line"/>
+                                                    <t t-set="current_subtotal" t-value="0"/>
+                                                </t>
+                                                <t t-elif="line.display_type == 'line_note'">
+                                                    <!-- Erklärung: colspan="99" wurde entfernt. -->
+                                                    <td style="font-style: italic;line-height: 1.5;" name="td_note_line">
+                                                        <span t-field="line.name"></span>
+                                                    </td>
+                                                    <!-- Erklärung: Leere zweite Zelle wurde hinzugefügt. -->
+                                                    <td></td>
+                                                </t>
+                                            </div>
+                                        </tr>
+                                    
+                                    <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section') and not line.is_downpayment">
+                                        <tr class="is-subtotal"> <!-- "text-end" hier entfernt, wird innen gesteuert -->
+                                            <td name="td_section_subtotal" colspan="2" style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 5px 0;">
+                                                <t t-if="current_subtotal != 0.00">
+                                                    <!-- Unsichtbare Tabelle für die Ausrichtung -->
+                                                    <table style="width: 100%; border: none;">
+                                                        <tr>
+                                                            <!-- Spalte 1: Text (linksbündig) -->
+                                                            <td style="text-align: left; border: none; padding: 0;">
+                                                                <strong>Preis Leistungspositionen</strong>
+                                                            </td>
+                                                            <!-- Spalte 2: Preis (rechtsbündig) -->
+                                                            <td style="text-align: right; border: none; padding: 0;">
+                                                                <b><span
+                                                                    t-out="current_subtotal"
+                                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                                                ></span></b>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <!-- Erklärung: Diese Zelle erstreckt sich über 2 Spalten und enthält ein geschütztes Leerzeichen (&nbsp;), damit sie nicht ignoriert wird. -->
+                                            <td colspan="2" style="line-height: 1;"><br/></td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div>
+                            <t t-set="filtered_components" t-value="o.contract_components.filtered(lambda c: c.position == 'sub' and c.order_inline_text).sorted(key=lambda c: c.sequence)"/>
+                            <t t-foreach="filtered_components" t-as="component">
+                            <t t-if="component.page_break">
+                                    <div style="page-break-before: always;" ></div>
+                            </t>
+                            <t t-set="counter_inline" t-value="counter_inline + 1"/>
+                                    <span t-field="component.text_block"/>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!--- Gemeinsamer Block -->
+
+                    <div>
+                       <t t-set="filtered_components" t-value="o.contract_components.filtered(lambda c: c.position == 'sub' and not c.order_inline_text).sorted(key=lambda c: c.sequence)"/>
+                       <t t-foreach="filtered_components" t-as="component">
+                       <t t-if="component.position == 'sub' and not component.order_inline_text">
+                       <t t-if="component.page_break">
+                            <div style="page-break-before: always;" ></div>
+                       </t>
+                        <t t-set="counter" t-value="counter + 1"/>
+                            <t t-if="component.section_signature">
+                                <t t-set="signature_list" t-value="signature_list + ['§' + str(counter)]"/>
+                            </t>
+                            <div style="page-break-inside: avoid;">
+                                <div class="section-box">
+                                    <h3>§ <span t-esc="counter"/>. <span t-field="component.name"/> </h3>
+                                </div>
+                                <!-- 1. Rohen HTML-String aus dem Feld lesen -->
+                                <t t-set="raw_html" t-value="o.env['sale.order.contract'].browse(component.id).text_block or ''"/>
+
+                                <!-- 2. Ersetzungen auf dem rohen String durchführen, so die Keywords drin sind -->
+                                <t t-set="processed_html" t-value="raw_html
+                                .replace('JUNSTDSATZ', '%s €' % ('%.2f' % jun_price).replace('.', ','))
+                                .replace('SENSTDSATZ', '%s €' % ('%.2f' % sen_price).replace('.', ','))
+                                .replace('PARSTDSATZ', '%s €' % ('%.2f' % par_price).replace('.', ','))
+                                .replace('CONTRACTENDDATE', contract_end_date_str)
+                                "/>
+                                <!-- 3. Das Ergebnis als rohes HTML ausgeben -->
+                                <t t-raw="processed_html"/>
+                            </div>  
+                        </t>
+                       </t>
+                   </div>
+
+                    <!--- Unterschriftenblock -->
+                    <div>
+                        <t t-if="o.page_break_signature">
+                            <div style="page-break-before: always;" ></div>
+                        </t>
+                        <t t-name="report_sales_order_lines">
+
+                            <!-- ====================================================================== -->
+                            <!-- TABELLE 1: Beauftragungs-Teil (gerahmt und nur bei tl/evl sichtbar) -->
+                            <!-- ====================================================================== -->
+                            <t t-if="o.contract_type in ['tl', 'evl']">
+                                <div style="border: 1px solid rgba(0, 90, 158, 0.2); border-radius: 8px; padding: 12px; margin-top: 50px;">
+                                    <table class="table table-sm o_main_table" style="width: 100%; margin: 0;">
+                                        <thead>
+                                            <t t-set="signature_list_str" t-value="', '.join(signature_list)"/>
+                                            <tr style="border-style: none;">
+                                                <th style="text-align: left; vertical-align: bottom; color: red; border:none; width: 80%;" t-if="o.contract_type == 'tl'"></th>
+                                                <th style="text-align: left; vertical-align: bottom; color: red; border:none; width: 80%;" t-elif="o.contract_type == 'evl'"></th>
+                                                
+                                                <th style="text-align: center; vertical-align: bottom; border:none; width: 20%;">
+                                                    <b>Beauftragung</b>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Positionszeilen (nur fuer TL) -->
+                                            <t t-if="o.contract_type == 'tl'">
+                                                <t t-set="counter_section" t-value="0"/>
+                                                <t t-foreach="o.order_line" t-as="section" t-if="section.display_type == 'line_section'">
+                                                    <tr>
+                                                        <t t-set="counter_section" t-value="counter_section + 1"/>
+                                                        <td style="line-height: 1.5;"><span>Pos. <span t-esc="counter_section"/>: <span t-esc="section.name"/></span></td>
+                                                        <td class="kas-checkbox" style="vertical-align: middle; text-align: center;line-height: 1.5;">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#005A9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                            </svg>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+
+                            <!-- ================================================================ -->
+                            <!-- TABELLE 2: Datums- und Unterschriften-Teil (immer ungerahmt) -->
+                            <!-- ================================================================ -->
+                            <table class="table table-sm" style="width: 100%; margin-top: 1rem;">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2" style="border: none; padding-top: 2rem; font-weight: bold;">
+                                            Leipzig, den <span t-esc="o.date_order.strftime('%d.%m.%Y')"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="display: flex; align-items: flex-end;height: 150px;">
+                                        <td class="text-muted" style="vertical-align: bottom; width: 50%; text-align: left; border:none;">
+                                            Unterschrift/Stempel<br/>
+                                            Auftragnehmer
+
+                                            <!-- ========================================================== -->
+                                            <!-- HIER ERFOLGT DIE AUSGABE DES HASH-WERTES                   -->
+                                            <!-- ========================================================== -->
+                                            <br/><br/>
+                                            <div t-if="o.compute_contract_hash()" style="font-size: 7px; font-family: monospace; color: #6c757d; word-break: break-all; text-align: left;">
+                                                <span>Dokument-Integritätscode (SHA-256):</span><br/>
+                                                <span t-esc="o.compute_contract_hash()"/>
+                                            </div>
+                                            <!-- ========================================================== -->
+                                            
+                                        </td>
+                                        <td class="text-muted" style="vertical-align: bottom; width: 50%; text-align: right; border:none;">
+                                            Unterschrift/Stempel<br/>
+                                            Auftraggeber
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                        </t>
+                    </div>
+               </t>
+           </t>
+       </t>
+   </template>
 </odoo>

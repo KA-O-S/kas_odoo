@@ -5,10 +5,17 @@
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale.view_order_form"/>
       <field name="arch" type="xml">
+        <!-- ========================= NEUER XPATH-BLOCK ========================= -->
+        <!-- Fuegt das Feld prominent als Radio-Button nach dem Partner hinzu. 
+        <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="contract_type"/>
+        </xpath>
+        < ===================================================================== -->
 
         <xpath expr="//field[@name='date_order']" position="after">
             <field name="date_initial_contract"/>
             <field name="date_contract_duration"/>
+            <field name="contract_type"/>
         </xpath>
 
         <xpath expr="//page[@name='other_information']" position="after">

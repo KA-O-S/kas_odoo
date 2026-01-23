@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
      <template id="kas_external_report">
+        <head>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&amp;display=swap"/>
+            <style type="text/css">
+                /* 1. Globale Schriftart und -größe für das gesamte Dokument */
+                .o_report_layout_standard {
+                    font-family: 'Lato', sans-serif; /* Verwendet Lato */
+                    font-size: 12pt;
+                    line-height: 1.5 !important;
+                    color: #333; /* Ein dunkles Grau statt reinem Schwarz für bessere Lesbarkeit */
+                }
+
+                /* 2. Stil für die grauen Überschriften-Kästen */
+                .section-box {
+                    background-color: #f0f0f0; /* Hellgrau, wie im Beispiel */
+                    padding: 5px 10px;       /* Innenabstand (oben/unten, links/rechts) */
+                    margin-top: 5px;        /* Abstand nach oben */
+                    margin-bottom: 5px;      /* Abstand nach unten */
+                }
+
+                /* 3. Stil für den Text in den grauen Kästen */
+                .section-box h3 {
+                    margin: 0;               /* Entfernt den Standard-Abstand der h3-Überschrift */
+                    font-weight: bold;
+                    font-size: 12pt;         /* Stellt sicher, dass die Überschrift die gleiche Größe wie der Text hat */
+                }
+            </style>
+        </head> 
         <div t-attf-class="header">
             <div class="row">
                 <div class="col-3 mb4">

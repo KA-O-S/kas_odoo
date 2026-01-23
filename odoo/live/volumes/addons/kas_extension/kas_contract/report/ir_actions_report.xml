@@ -39,4 +39,34 @@
         <field name="binding_model_id" ref="sale.model_sale_order"/>
         <field name="binding_type">report</field>
     </record>
+    <record id="action_report_saleorder_contract_master" model="ir.actions.report">
+        
+        <!-- name: Der Text für den neuen Knopf. Wir nennen ihn eindeutig. -->
+        <field name="name">Vertrag (Master Template)</field>
+        
+        <!-- model: Gilt für 'sale.order'. -->
+        <field name="model">sale.order</field>
+        
+        <!-- report_type: PDF. -->
+        <field name="report_type">qweb-pdf</field>
+        
+        <!-- 
+            report_name: DER WICHTIGSTE PUNKT.
+            Dieser neue Knopf ruft unser neues, intelligentes Master-Template auf.
+        -->
+        <field name="report_name">kas_contract.report_contract_master</field>
+        
+        <!-- report_file: Technisches Feld, sollte denselben Wert haben. -->
+        <field name="report_file">kas_contract.report_contract_master</field>
+        
+        <!-- print_report_name: Der Dateiname des generierten PDFs. -->
+        <field name="print_report_name">'Vertrag (Master) - %s' % (object.name)</field>
+        
+        <!-- binding_model_id: Verbindet die Aktion mit dem sale.order-Modell. 
+            'sale.model_sale_order' ist die sichere, vollständige Referenz. -->
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        
+        <!-- binding_type: Sorgt dafür, dass es im "Drucken"-Menü erscheint. -->
+        <field name="binding_type">report</field>
+    </record>
 </odoo>
