@@ -91,11 +91,14 @@ class IrActionsReport(models.Model):
             if body_tag:
                 body_html = body_tag.decode_contents()
             _logger.info(f"ZERLEGT (BS4) - BODY: {body_html[:11300]}")
+            paperformat = report.paperformat_id or self.env.company.paperformat_id
 
             payload = {
                 'body': body_html,
                 'header': header_html,
                 'footer': footer_html,
+                'paper_format': paperformat.format if paperformat else 'A4',
+                'is_landscape': (paperformat.orientation == 'Landscape') if paperformat else False,
             }
 
             pdf_data = self._call_playwright_render_subprocess(payload)

@@ -1,72 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="action_report_contract_tl" model="ir.actions.report">
-        <field name="name">Teileistungsvertrag</field>
-        <field name="model">sale.order</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">kas_contract.report_contract_tl</field>
-        <field name="report_file">kas_contract.report_contract_tl</field>
-        <field name="binding_model_id" ref="model_sale_order"/>
-        <field name="binding_type">report</field>
-    </record>
-
-    <record id="action_report_contract_ra" model="ir.actions.report">
-        <field name="name">Rahmenvertrag</field>
-        <field name="model">sale.order</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">kas_contract.report_contract_ra</field>
-        <field name="report_file">kas_contract.report_contract_ra</field>
-        <field name="binding_model_id" ref="model_sale_order"/>
-        <field name="binding_type">report</field>
-    </record>
-
-    <record id="action_report_contract_evl" model="ir.actions.report">
-        <field name="name">Erfolgasabhängige Leistung</field>
-        <field name="model">sale.order</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">kas_contract.report_contract_evl</field>
-        <field name="report_file">kas_contract.report_contract_evl</field>
-        <field name="binding_model_id" ref="model_sale_order"/>
-        <field name="binding_type">report</field>
-    </record>
-       <!-- Dies ist der neue, temporäre Dummy-Report nur für Debugging-Zwecke -->
-    <record id="action_report_footer_debugger" model="ir.actions.report">
-        <field name="name">==== FOOTER DEBUGGER ====</field>
-        <field name="model">sale.order</field>
-        <field name="report_type">qweb-html</field>
-        <field name="report_name">kas_contract.kas_footer_test_template</field>
-        <field name="report_file">kas_contract.kas_footer_test_template</field>
-        <field name="binding_model_id" ref="sale.model_sale_order"/>
-        <field name="binding_type">report</field>
-    </record>
     <record id="action_report_saleorder_contract_master" model="ir.actions.report">
-        
-        <!-- name: Der Text für den neuen Knopf. Wir nennen ihn eindeutig. -->
-        <field name="name">Vertrag (Master Template)</field>
-        
-        <!-- model: Gilt für 'sale.order'. -->
+        <field name="name">Vertrag</field>
         <field name="model">sale.order</field>
-        
-        <!-- report_type: PDF. -->
         <field name="report_type">qweb-pdf</field>
-        
-        <!-- 
-            report_name: DER WICHTIGSTE PUNKT.
-            Dieser neue Knopf ruft unser neues, intelligentes Master-Template auf.
-        -->
         <field name="report_name">kas_contract.report_contract_master</field>
-        
-        <!-- report_file: Technisches Feld, sollte denselben Wert haben. -->
         <field name="report_file">kas_contract.report_contract_master</field>
-        
-        <!-- print_report_name: Der Dateiname des generierten PDFs. -->
         <field name="print_report_name">'Vertrag (Master) - %s' % (object.name)</field>
-        
-        <!-- binding_model_id: Verbindet die Aktion mit dem sale.order-Modell. 
-            'sale.model_sale_order' ist die sichere, vollständige Referenz. -->
         <field name="binding_model_id" ref="sale.model_sale_order"/>
-        
-        <!-- binding_type: Sorgt dafür, dass es im "Drucken"-Menü erscheint. -->
         <field name="binding_type">report</field>
+    </record>
+    <!-- 1. Deaktiviert den Standard "Angebot / Auftrag"-Report -->
+    <!-- Die ID `sale.action_report_saleorder` ist die Standard-ID von Odoo. -->
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
+        <!-- Wir entfernen die Verknüpfung zum 'sale.order'-Modell. -->
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <!-- 2. Deaktiviert die Standard "PRO-FORMA-Rechnung" -->
+    <!-- Die ID `sale.action_report_pro_forma_invoice` ist die Standard-ID von Odoo. -->
+    <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
+        <!-- Auch hier entfernen wir die Verknüpfung. -->
+        <field name="binding_model_id" eval="False"/>
     </record>
 </odoo>

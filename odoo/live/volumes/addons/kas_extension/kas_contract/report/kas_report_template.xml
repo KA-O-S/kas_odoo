@@ -2,6 +2,7 @@
 <odoo>
      <template id="kas_external_report">
         <head>
+            <t t-call-assets="web.report_assets_common" t-js="False"/>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&amp;display=swap"/>
             <style type="text/css">
                 /* 1. Globale Schriftart und -größe für das gesamte Dokument */
@@ -76,6 +77,7 @@
 
     <template id="kas_layout_header">
         <!-- Multi-Company-Logik -->
+        <link rel="stylesheet" href="/web/assets/debug/web.report_assets_common.css" type="text/css"/>
         <t t-if="not o and docs" t-set="o" t-value="docs[0]"/>
         <t t-if="not company">
             <t t-if="company_id" t-set="company" t-value="company_id"/>

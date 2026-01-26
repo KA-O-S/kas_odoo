@@ -31,6 +31,9 @@ async def main():
         body_html = payload.get('body', '')
         header_html = payload.get('header', '') # Header extrahieren
         footer_html = payload.get('footer', '')
+        paper_format_from_payload = payload.get('paper_format', 'A4')
+        is_landscape_from_payload = payload.get('is_landscape', False)
+        
     except (json.JSONDecodeError, KeyError) as e:
         logging.error(f"Fehler beim Parsen der JSON-Payload: {e}")
         sys.exit(1)
@@ -50,10 +53,13 @@ async def main():
             pdf_options = {
                 'format': 'A4',
                 'print_background': True,
+                'landscape': False,
                 'prefer_css_page_size': True,
                 'margin': {"top": "35mm", "right": "12mm", "bottom": "45mm", "left": "12mm"}, # Top-Margin erhöht
                 'header_template': header_html,
                 'footer_template': footer_html,
+                'format': paper_format_from_payload,
+                'landscape': is_landscape_from_payload,
                 'display_header_footer': bool(header_html or footer_html)
 
             }
